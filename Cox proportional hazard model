@@ -1,0 +1,7 @@
+# Cox proportional hazard model
+library(survival)
+new data<-mydata
+surv_object = Surv(new_data$time, new_data$outcome)
+res <- coxph(surv_object ~ cov1+cov2+cov3+cov4+cov5+cov6+cov7+cov8+cov9+
+               cov10+Exposure, data = new_data)
+ggforest(res,data=new_data)
