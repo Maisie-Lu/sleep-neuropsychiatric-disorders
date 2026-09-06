@@ -1,0 +1,26 @@
+#brain imaging plotting
+library(ggseg)
+library(ggplot2)
+
+dat1 <- data.frame(
+  region = c("region1", "region2", "region3", "region4", "region5", "region6"),
+  hemi = c("left", "left", "right", "right", "right", "left"),
+  value = c(n1, n2, n3, n4, n5, n6))
+
+p1 <- ggplot() +
+  geom_brain(
+    atlas = dk(),
+    data = dat1,
+    mapping = aes(fill = value)) +
+  scale_fill_distiller(
+    palette = "Blues",
+    direction = -1,
+    limits = c(-3, 0),
+    na.value = "grey90") +
+  theme_brain() +
+  labs(fill = "Statistic Value") +
+  ggtitle("") +
+  theme(plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+        legend.position = "right")
+
+print(p1)
