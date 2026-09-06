@@ -1,0 +1,30 @@
+# Mediation analysis
+library(mediation)
+
+# Define variables
+exposure_var <- "exposure"      # Independent variable
+mediator_var <- "mediator"      # Mediator variable
+outcome_var <- "outcome"        # Dependent variable
+covariates <- c("cov1", "cov2", "cov3", "cov4", "cov5")  # Covariates
+
+# Build formulas
+formula_a <- as.formula(paste(mediator_var, "~", exposure_var, "+", 
+                               paste(covariates, collapse = " + ")))
+formula_b <- as.formula(paste(outcome_var, "~", exposure_var, "+", 
+                               mediator_var, "+", 
+                               paste(covariates, collapse = " + ")))
+
+# Fit models
+model.a <- glm(formula_a, data = data)
+model.b <- glm(formula_b, data = data)
+
+# Run mediation analysis with bootstrap
+mediation_result <- mediate(model.a, model.b, 
+                            treat = exposure_var, 
+                            mediator = mediator_var,
+                            boot = TRUE, 
+                            sims = 500, 
+                            conf.level = 0.95)
+
+# View results
+summary(mediation_result)
