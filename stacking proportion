@@ -1,0 +1,33 @@
+# stacking proportion
+count_tab <- table(data$Var1, data$Var2)
+count_df <- as.data.frame(count_tab)
+colnames(count_df) <- c("Var1", "Var2", "n")
+
+count_df$ratio <- ave(count_df$n, count_df$Var1,
+                      FUN = function(x) round(x/sum(x)*100, 2)) 
+
+count_df_filtered <- count_df[count_df$ratio != 0, ]
+
+count_df_filtered$Var2 <- factor(
+  count_df_filtered$Var2,
+  levels = unique(count_df_filtered$Var2[order(count_df_filtered$ratio, decreasing = F)]))
+
+count_df_filtered$label_text <- ifelse(count_df_filtered$ratio >= 0.58,                                         paste0(count_df_filtered$ratio, "%"),"")
+
+ggplot(count_df_filtered, aes(Var1, n, fill = Var2)) +
+  geom_col(width = 0.7) +
+  geom_text(aes(label = label_text),
+            position = position_stack(vjust = 0.5),
+            size = 3,
+            color = "black",  
+            check_overlap = TRUE) + 
+  scale_fill_manual(values = c("gray53","pink3", "skyblue3" )) +
+  labs(title = "",
+       x = "Subjective-reported (Instance 0)",
+       y = "Number of Participants",
+       fill = "Accelerometer-measured") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+    panel.grid = element_blank(),  
+    axis.line = element_line(color = "black", linewidth = 0.5))
