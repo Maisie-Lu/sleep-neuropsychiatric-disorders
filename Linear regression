@@ -1,0 +1,6 @@
+#Linear regression
+
+data <- mydata
+model <- glm(y ~ exposure + cov1 + cov2 + cov3 + cov4 + cov5 + cov6 + cov7 + cov8 + cov9 + cov10 + cov11, data = data)
+summary(model)
+coef_summary <- summary(model)$coefficients
