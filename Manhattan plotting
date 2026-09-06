@@ -1,0 +1,44 @@
+
+# Manhattan plotting
+library(qqman)
+library(RColorBrewer)
+
+gwas_data <- fread(
+  "snp_only_add_with_header.txt")
+
+# Filter significant SNPs
+significant_snps <- gwas_data_clean[P < 5e-8]  # Genome-wide significant SNPs (P < 5e-8)
+suggestive_snps <- gwas_data_clean[P < 1e-5]   # Suggestive SNPs (P >= 5e-8 and < 1e-5)
+
+pale_gwas_colors <- c(
+  "#739BDF", "#E6BF5C", "#6A5ACD", "#739460",
+  "#D970B0", "#E69A3A", "#D68AA6", "#8FB88F",
+  "#B15555", "#8A6A50", "#5E88AC", "#E6BF5C",
+  "#6A5ACD", "#739460", "#D970B0", "#E69A3A",
+  "#D68AA6", "#8FB88F", "#B15555", "#8A6A50",
+  "#5E88AC", "#E6BF5C"
+)
+
+# Get unique chromosomes
+unique_chr <- sort(unique(gwas_data_clean$CHR))
+my_colors <- pale_gwas_colors[1:length(unique_chr)]
+
+png(
+  "E:/gwas_manhattan.png",
+  width = 12,
+  height = 6,
+  units = "in",
+  res = 300)  # 300dpi for journal quality
+
+manhattan(
+  gwas_data_clean,
+  chr = "CHR",
+  bp = "BP",
+  p = "P",
+  snp = "SNP",
+  main = "Accelerometer-measured short sleep",
+  genomewideline = 7.3,
+  suggestiveline = 5,
+  col = my_colors)
+
+dev.off()
