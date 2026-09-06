@@ -1,0 +1,48 @@
+library(TwoSampleMR)
+library(ieugwasr)
+library(ggplot2)
+
+ao <- available_outcomes()
+head(subset(ao, select = c(trait, id)))
+
+exposure_dat <- extract_instruments(outcomes = "ieu-1")
+outcome_dat <- extract_outcome_data(
+  snps = exposure_dat$SNP,
+  outcomes = "ieu-2"
+)
+
+harmonised_dat <- harmonise_data(
+  exposure_dat = exposure_dat,
+  outcome_dat = outcome_dat,
+  action = 2
+)
+
+mr_results <- mr(harmonised_dat)
+mr_results
+
+heterogeneity <- mr_heterogeneity(harmonised_dat)
+heterogeneity
+
+pleiotropy <- mr_pleiotropy_test(harmonised_dat)
+pleiotropy
+
+leave_results <- mr_leaveoneout(harmonised_dat)
+
+p1 <- mr_scatter_plot(mr_results, harmonised_dat)
+print(p1)
+
+single_results <- mr_singlesnp(harmonised_dat)
+p2 <- mr_forest_plot(single_results)
+print(p2)
+
+p3 <- mr_funnel_plot(single_results)
+print(p3)
+
+p4 <- mr_leaveoneout_plot(leave_results)
+print(p4)
+
+dat <- make_dat("ieu-1", "ieu-2")
+mr_results_simple <- mr(dat)
+mr_results_simple
+
+ivw_result <- mr_results[mr_results$method == "Inverse variance weighted", ]
