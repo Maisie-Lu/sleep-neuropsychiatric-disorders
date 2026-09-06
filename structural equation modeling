@@ -1,0 +1,82 @@
+library(lavaan)
+library(semTools)
+library(mice)
+
+shortsleep.meta$Mediator
+
+# Model 1: Mediation with latent variable (complete mediation)
+sem_model <- '
+  # Latent variable definition
+  wmi =~ var1 + var2+var3
+  
+  # Mediation paths (no direct effect)
+  wmi ~ a*PRS + cov1 + cov2 + cov3
+  outcome ~ b1*wmi + cov1 + cov2 + cov3
+  
+  # Define mediation effect
+  med_dem := a*b1'
+
+sem_fit <- sem(model = sem_model,
+               data = data,
+               estimator = "MLR",
+               bootstrap = 2000)
+
+summary(sem_fit, standardized = TRUE, ci = TRUE)
+fitMeasures(sem_fit, c("CFI", "TLI", "RMSEA", "SRMR"))
+
+
+# Model 2: Direct regression (no mediation, no latent variable)
+sem_model_direct <- '
+  # Direct path: PRS → outcome (with covariates)
+  outcome ~ PRS + cov1 + cov2 + cov3'
+
+sem_fit_direct <- sem(
+  model = sem_model_direct,
+  data = data,
+  estimator = "MLR",
+  bootstrap = 2000)
+
+summary(sem_fit_direct, standardized = TRUE, ci = TRUE)
+fitMeasures(sem_fit_direct, c("CFI", "TLI", "RMSEA", "SRMR"))
+
+
+# Model 3: Mediation with latent variable (no direct effect)
+sem_model <- '
+  # Latent variable definition
+  wmi =~ var1 + var2+var3
+  
+  # Mediation paths (no direct effect)
+  exposure ~ a*PRS + cov1 + cov2 + cov3
+  wmi ~ b1*exposure
+  outcome ~ c1*wmi + cov1 + cov2 + cov3
+  
+  # Define mediation effect
+  med_dem := a*b1*c1'
+
+sem_fit <- sem(model = sem_model,
+               data = data,
+               ordered = c("exposure"),
+               estimator = "WLSMV",
+               bootstrap = 2000)
+
+summary(sem_fit, standardized = TRUE, ci = TRUE)
+fitMeasures(sem_fit, c("CFI", "TLI", "RMSEA", "SRMR"))
+
+
+# Model 4: Simple mediation (no latent variable)
+sem_model <- '
+  exposure ~ a*PRS + cov1 + cov2 + cov3
+  outcome ~ b1*exposure + cov1 + cov2 + cov3
+  
+  # Define mediation effect
+  med_dem := a*b1'
+
+sem_fit <- sem(model = sem_model,
+               data = data,
+               ordered = c("exposure"),
+               estimator = "WLSMV",
+               bootstrap = 2000)
+
+summary(sem_fit, standardized = TRUE, ci = TRUE)
+fitMeasures(sem_fit, c("CFI", "TLI", "RMSEA", "SRMR"))
+parameterEstimates(sem_fit, ci = TRUE)[grep("med_", parameterEstimates(sem_fit)$label), ]
